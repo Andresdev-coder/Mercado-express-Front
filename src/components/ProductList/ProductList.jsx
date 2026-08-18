@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./ProductList.css";
 import { useNavigate } from "react-router-dom";
 
-export const ProductList = () => {
+export const ProductList = ({searchTerm}) => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const [order, setOrder] = useState("Relevante");
@@ -13,6 +13,7 @@ export const ProductList = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch("https://api-ten-jet.vercel.app/products");
+        // const response = await fetch("https://fakestoreapi.com/products");
         if (!response.ok) {
           throw new Error("Error al cargar los productos");
         }
@@ -34,6 +35,10 @@ export const ProductList = () => {
     }));
   };
 
+  const normalizeText = (text) => {
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  }
+
   const filtersProducts = products.filter((product) => {
     const matchCategory =
       filters.categories.length === 0 ||
@@ -41,7 +46,9 @@ export const ProductList = () => {
     const matchType =
       filters.types.length === 0 || filters.types.includes(product.tipo);
 
-    return matchCategory && matchType;
+      const matcSearch = !searchTerm || normalizeText(product.nombre).includes(normalizeText(searchTerm)) || normalizeText(product.descripcion).includes(normalizeText(searchTerm))
+      
+      return matchCategory && matchType && matcSearch;
   });
 
   const handleOrderChange = (e) => {

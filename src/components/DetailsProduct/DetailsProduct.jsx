@@ -2,17 +2,32 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import "./DetailsProduct.css";
 import { useEffect } from "react";
+import { useCart } from "../CartContext/CartContext";
 
 export const DetailsProduct = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(null);
 
+  const {addToCart} = useCart();
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart({
+        id: product.id,
+        image: product.image,
+        nombre: product.nombre,
+        precio: product.precio,
+        amount: 1
+      })
+    }
+  }
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await fetch(
           `https://api-ten-jet.vercel.app/products/${id}`,
+          // `https://fakestoreapi.com/products${id}`,
         );
         if (!response.ok) {
           throw new Error("Error al cargar los detalles del producto");
@@ -50,7 +65,7 @@ export const DetailsProduct = () => {
               <button>L</button>
               <button>XL</button>
             </div>
-            <button className="add-to-cart">Añadir al carrito</button>
+            <button className="add-to-cart" onClick={handleAddToCart}>Añadir al carrito</button>
             <p className="note">
               Producto 100% original. El pago contra reembolso está disponible
               para este producto. Política de devolución y cambio fácil dentro
